@@ -11,7 +11,6 @@ import SDWebImage
 
 class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSource{
 
-    
     @IBOutlet weak var tblView: UITableView!
     var modelgetuserData = modelusersData()
     
@@ -22,7 +21,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     var index = Int()
     
-    var userdata = [userData]()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -48,18 +46,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
             aDictResponseData = data?["data"] as! [String:Any]
             self.modelgetuserData = modelusersData(dictionary: aDictResponseData)
             print("response is \(aDictResponseData)")
-        
-            let one = userData(image: self.modelgetuserData.users[0].name, items: self.modelgetuserData.users[0].items ?? [])
-            let two = userData(image: self.modelgetuserData.users[1].name, items: self.modelgetuserData.users[1].items ?? [])
-            let three = userData(image: self.modelgetuserData.users[2].name, items: self.modelgetuserData.users[2].items ?? [])
-            let four = userData(image: self.modelgetuserData.users[3].name, items: self.modelgetuserData.users[3].items ?? [])
             
-            userdata.append(one)
-            userdata.append(two)
-            userdata.append(three)
-            userdata.append(four)
-            
-            print("userdata array \(userdata)")
             
             self.tblView.reloadData()
         }
@@ -75,12 +62,9 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tblView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! myCell
+        let cell = tblView.dequeueReusableCell(withIdentifier: "cell", for: indexPath) as! UserTableViewCell
         
         cell.userName.text = modelgetuserData.users[indexPath.row].name
-        
-        
-        
         let imgUrl = URL(string: modelgetuserData.users[indexPath.row].image ?? "")
 //                cell.userImg.sd_setImage(with: imgUrl)
         //        cell.userImg.load(urlString: "http://loremflickr.com/300/300?random=1")
@@ -107,7 +91,7 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
     
     func tableView(_ tableView: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         
-        guard let preferencesCell = cell as? myCell else { return }
+        guard let preferencesCell = cell as? UserTableViewCell else { return }
         
 //        let tag = Int("\(indexPath.section)\(indexPath.row)")!
         
@@ -121,7 +105,6 @@ class ViewController: UIViewController, UITableViewDelegate, UITableViewDataSour
         preferencesCell.contentView.layoutIfNeeded()
         preferencesCell.collectionview.reloadData()
     }
-    
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return UITableView.automaticDimension
@@ -162,7 +145,7 @@ extension ViewController : UICollectionViewDataSource , UICollectionViewDelegate
   
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "collectionCell", for: indexPath) as! mycollectionCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "collectionCell", for: indexPath) as! UserCollectionViewCell
         
         cell.itemImgView.sd_setImage(with: URL(string:"https://picsum.photos/seed/picsum/200/300"))
         cell.itemImgView.contentMode = .scaleAspectFill
@@ -181,75 +164,6 @@ extension ViewController : UICollectionViewDataSource , UICollectionViewDelegate
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
         return 5
     }
-
-    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return 5
-    }
     
 }
 
-//MARK:- uitableviewCell
-
-class myCell : UITableViewCell{
-    
-    @IBOutlet weak var userImg: UIImageView!
-    @IBOutlet weak var userName: UILabel!
-    @IBOutlet weak var collectionview: UICollectionView!
-    @IBOutlet weak var const_cvPreferences_height: NSLayoutConstraint!
-    
-    override func awakeFromNib() {
-        super.awakeFromNib()
-        
-        userImg.layer.cornerRadius = 28
-    }
-
-    override func setSelected(_ selected: Bool, animated: Bool) {
-        super.setSelected(selected, animated: animated)
-
-    }
-    
-    func setCollectionView(dataSourceDelegate: UICollectionViewDataSource & UICollectionViewDelegate) {
-        self.collectionview.delegate = dataSourceDelegate
-        self.collectionview.dataSource = dataSourceDelegate
-        self.collectionview.reloadData()
-    }
-    class func Nib() -> UINib {
-        return UINib(nibName: "mycollectionCell", bundle: nil)
-    }
-    
-}
-
-//MARK:- uicollectionviewCell
-class mycollectionCell: UICollectionViewCell{
-    
-    @IBOutlet weak var itemImgView: UIImageView!
-    
-    override func awakeFromNib() {
-        super.awakeFromNib()
-      
-    }
-}
-
-
-//MARK:- ImageView Extension
-extension UIImageView {
-    func load(urlString : String) {
-        guard let url = URL(string: urlString)else {
-            return
-        }
-        DispatchQueue.global().async { [weak self] in
-            if let data = try? Data(contentsOf: url) {
-                if let image = UIImage(data: data) {
-                    DispatchQueue.main.async {
-                        self?.image = image
-                    }
-                }
-            }
-        }
-    }
-}
-
-struct userData{
-    public var image : String?
-    public var items : [String]
-}
